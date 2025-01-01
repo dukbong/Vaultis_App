@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Chrome Extension</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            width: 300px;
+            height: 300px;
+            margin: 0;
+            padding: 0;
+          }
+          .tabs {
+            display: flex;
+            cursor: pointer;
+            border-bottom: 2px solid #ddd;
+          }
+          .tab {
+            padding: 10px;
+            flex: 1;
+            text-align: center;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+          }
+          .tab.active {
+            background-color: #ddd;
+            font-weight: bold;
+          }
+          .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: #f9f9f9;
+            height: 150px;
+          }
+          .tab-content.active {
+            display: block;
+          }
+          textarea {
+            width: 100%;
+            height: 60px;
+            resize: none;
+            margin-bottom: 10px;
+          }
+          #fileInput, #encryptFileInput {
+            margin-bottom: 10px;
+          }
+        </style>
+      </head>
+  <body>
+    <h3>암호화 서비스</h3>
+    
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" id="writeTab">암호화</div>
+      <div class="tab" id="encryptTab">복호화</div>
+    </div>
+
+<!-- Write Tab Content -->
+<div class="tab-content active" id="writeTabContent">
+    <textarea id="content" placeholder="본문을 입력하세요"></textarea>
+    <input type="file" id="fileInput" />
+    <button id="sendButton">전송</button>
+    <textarea id="writeResponse" placeholder="응답이 여기에 표시됩니다" readonly></textarea>
+  </div>
+  
+  <!-- Encrypt Tab Content -->
+  <div class="tab-content" id="encryptTabContent">
+    <textarea id="encryptedContent" placeholder="암호화된 본문을 입력하세요"></textarea>
+    <input type="file" id="encryptFileInput" />
+    <button id="encryptButton">전송</button>
+    <textarea id="encryptResponse" placeholder="응답이 여기에 표시됩니다" readonly></textarea>
+  </div>
+  
+
+    <script src="popup.js"></script>
+  </body>
+</html>
