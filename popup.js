@@ -12,6 +12,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const encryptionResponseOutput = document.getElementById('encryptionResponseOutput');
     const decryptionResponseOutput = document.getElementById('decryptionResponseOutput');
 
+    function copyToClipboard(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+    }
+
+    encryptionResponseOutput.addEventListener('click', () => {
+        const message = encryptionResponseOutput.value;
+        if (message) {
+            copyToClipboard(message);
+        }
+    });
+
+    // 복호화 응답 클릭 시 복사
+    decryptionResponseOutput.addEventListener('click', () => {
+        const message = decryptionResponseOutput.value;
+        if (message) {
+            copyToClipboard(message);
+        }
+    });
+
     // 탭 전환
     encryptionTab.addEventListener('click', () => {
         encryptionTab.classList.add('active');
@@ -111,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 encryptionResponseOutput.value = data.data.encryptedContent || '응답 메시지가 없습니다.';
             })
             .catch(error => {
-                encryptionResponseOutput.value = '전송 실패: ' + error; // 오류 메시지 표시
+                encryptionResponseOutput.value = '암호화에 실패하였습니다.'; // 오류 메시지 표시
             });
     });
 
@@ -134,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 decryptionResponseOutput.value = data.data.content || '응답 메시지가 없습니다.';
             })
             .catch(error => {
-                decryptionResponseOutput.value = '전송 실패: ' + error; // 오류 메시지 표시
+                decryptionResponseOutput.value = '복호화에 실패하였습니다.'; // 오류 메시지 표시
             });
     });
 

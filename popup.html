@@ -118,6 +118,13 @@
             resize: none;
             margin-bottom: 10px;
             font-family: 'Courier New', monospace;
+            transition: background-color 0.3s ease; /* 색상 전환 효과 */
+        }
+
+        /* 클릭 시 배경색이 어두워지는 효과 */
+        #encryptionResponseOutput:active,
+        #decryptionResponseOutput:active {
+            background-color: #e0e0e0; /* 어두운 색으로 변경 */
         }
 
         .container {
@@ -133,27 +140,27 @@
 <body>
 
 <div class="container">
-    <h3>암호화 서비스</h3>
+<!--    <h3><strong>{**********}</strong></h3>-->
 
     <div class="tabs">
-        <div class="tab active" id="encryptionTab">암호화</div>
-        <div class="tab" id="decryptionTab">복호화</div>
+        <div class="tab active" id="encryptionTab"><strong>Encryption</strong></div>
+        <div class="tab" id="decryptionTab"><strong>Decryption</strong></div>
     </div>
 
     <!-- 암호화 탭 : 평문을 암호화 한다. -->
     <div class="tab-content active" id="encryptionTabContent">
-        <textarea id="plaintextInput" placeholder="본문을 입력하세요"></textarea>
+        <textarea id="plaintextInput" placeholder="Enter the data to be encrypted."></textarea>
         <input type="file" id="publicKeyFileInput" />
-        <button id="encryptSubmitButton">전송</button>
-        <textarea id="encryptionResponseOutput" placeholder="응답이 여기에 표시됩니다" readonly></textarea>
+        <button id="encryptSubmitButton">Transform</button>
+        <textarea id="encryptionResponseOutput" placeholder="Your data is protected." readonly></textarea>
     </div>
 
     <!-- 복호화 탭 : 암호화된 문장을 복호화 한다. -->
     <div class="tab-content" id="decryptionTabContent">
-        <textarea id="ciphertextInput" placeholder="암호화된 본문을 입력하세요"></textarea>
+        <textarea id="ciphertextInput" placeholder="Enter the data to be decrypted."></textarea>
         <input type="file" id="privateKeyFileInput" />
-        <button id="decryptSubmitButton">전송</button>
-        <textarea id="decryptionResponseOutput" placeholder="응답이 여기에 표시됩니다" readonly></textarea>
+        <button id="decryptSubmitButton">Transform</button>
+        <textarea id="decryptionResponseOutput" placeholder="Your data is protected." readonly></textarea>
     </div>
 </div>
 
