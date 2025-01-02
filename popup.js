@@ -1,41 +1,105 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const writeTab = document.getElementById('writeTab');
-    const encryptTab = document.getElementById('encryptTab');
-    const writeTabContent = document.getElementById('writeTabContent');
-    const encryptTabContent = document.getElementById('encryptTabContent');
-    const sendButton = document.getElementById('sendButton');
-    const encryptButton = document.getElementById('encryptButton');
-    const contentInput = document.getElementById('content');
-    const encryptedContentInput = document.getElementById('encryptedContent');
-    const fileInput = document.getElementById('fileInput');
-    const encryptFileInput = document.getElementById('encryptFileInput');
-    const writeResponse = document.getElementById('writeResponse');
-    const encryptResponse = document.getElementById('encryptResponse');
+    const encryptionTab = document.getElementById('encryptionTab');
+    const decryptionTab = document.getElementById('decryptionTab');
+    const encryptionTabContent = document.getElementById('encryptionTabContent');
+    const decryptionTabContent = document.getElementById('decryptionTabContent');
+    const encryptSubmitButton = document.getElementById('encryptSubmitButton');
+    const decryptSubmitButton = document.getElementById('decryptSubmitButton');
+    const plaintextInput = document.getElementById('plaintextInput');
+    const ciphertextInput = document.getElementById('ciphertextInput');
+    const publicKeyFileInput = document.getElementById('publicKeyFileInput');
+    const privateKeyFileInput = document.getElementById('privateKeyFileInput');
+    const encryptionResponseOutput = document.getElementById('encryptionResponseOutput');
+    const decryptionResponseOutput = document.getElementById('decryptionResponseOutput');
 
     // 탭 전환
-    writeTab.addEventListener('click', () => {
-        writeTab.classList.add('active');
-        encryptTab.classList.remove('active');
-        writeTabContent.classList.add('active');
-        encryptTabContent.classList.remove('active');
+    encryptionTab.addEventListener('click', () => {
+        encryptionTab.classList.add('active');
+        decryptionTab.classList.remove('active');
+        encryptionTabContent.classList.add('active');
+        decryptionTabContent.classList.remove('active');
+
+        chrome.storage.local.get('publicKeyFile', (result) => {
+            if (result.publicKeyFile) {
+                // Base64 데이터를 Blob으로 변환
+                const byteCharacters = atob(result.publicKeyFile);
+                const byteNumbers = new Array(byteCharacters.length).fill().map((_, i) => byteCharacters.charCodeAt(i));
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray]);
+
+                // Blob을 파일로 설정
+                const file = new File([blob], "publicKey-file", { type: "application/octet-stream" });
+
+                // File 객체를 publicKeyFileInput에 설정
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                publicKeyFileInput.files = dataTransfer.files;
+            }
+        });
     });
 
-    encryptTab.addEventListener('click', () => {
-        encryptTab.classList.add('active');
-        writeTab.classList.remove('active');
-        encryptTabContent.classList.add('active');
-        writeTabContent.classList.remove('active');
+    decryptionTab.addEventListener('click', () => {
+        decryptionTab.classList.add('active');
+        encryptionTab.classList.remove('active');
+        decryptionTabContent.classList.add('active');
+        encryptionTabContent.classList.remove('active');
+
+        chrome.storage.local.get('privateKeyFile', (result) => {
+            if (result.privateKeyFile) {
+                // Base64 데이터를 Blob으로 변환
+                const byteCharacters = atob(result.privateKeyFile);
+                const byteNumbers = new Array(byteCharacters.length).fill().map((_, i) => byteCharacters.charCodeAt(i));
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray]);
+
+                // Blob을 파일로 설정
+                const file = new File([blob], "privateKey-file", { type: "application/octet-stream" });
+
+                // File 객체를 privateKeyFileInput에 설정
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                privateKeyFileInput.files = dataTransfer.files;
+            }
+        });
+    });
+
+    privateKeyFileInput.addEventListener('change', () => {
+        const file = privateKeyFileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const base64File = event.target.result.split(',')[1]; // Base64 데이터 추출
+                chrome.storage.local.set({ 'privateKeyFile': base64File }, () => {
+                    console.log('파일 저장 완료');
+                });
+            };
+            reader.readAsDataURL(file); // 파일 읽기
+        }
+    });
+
+    publicKeyFileInput.addEventListener('change', () => {
+        const file = publicKeyFileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const base64File = event.target.result.split(',')[1]; // Base64 데이터 추출
+                chrome.storage.local.set({ 'publicKeyFile': base64File }, () => {
+                    console.log('파일 저장 완료');
+                });
+            };
+            reader.readAsDataURL(file); // 파일 읽기
+        }
     });
 
     // 서버로 본문 및 파일 전송
-    sendButton.addEventListener('click', () => {
-        const content = contentInput.value;
-        const file = fileInput.files[0];
+    encryptSubmitButton.addEventListener('click', () => {
+        const plaintext = plaintextInput.value;
+        const file = publicKeyFileInput.files[0];
 
         const formData = new FormData();
-        formData.append('content', content);
+        formData.append('content', plaintext);
         if (file) {
-            formData.append('file', file);
+            formData.append('publicKeyFile', file);
         }
 
         fetch('http://localhost:8889/encrypt', {
@@ -44,19 +108,19 @@ document.addEventListener('DOMContentLoaded', function () {
         })
             .then(response => response.json())
             .then(data => {
-                writeResponse.value = JSON.stringify(data, null, 2); // 응답 표시
+                encryptionResponseOutput.value = data.data.encryptedContent || '응답 메시지가 없습니다.';
             })
             .catch(error => {
-                writeResponse.value = '전송 실패: ' + error; // 오류 메시지 표시
+                encryptionResponseOutput.value = '전송 실패: ' + error; // 오류 메시지 표시
             });
     });
 
-    encryptButton.addEventListener('click', () => {
-        const encryptedContent = encryptedContentInput.value;
-        const file = encryptFileInput.files[0];
+    decryptSubmitButton.addEventListener('click', () => {
+        const ciphertext = ciphertextInput.value;
+        const file = privateKeyFileInput.files[0];
 
         const formData = new FormData();
-        formData.append('encryptedMessage', encryptedContent);
+        formData.append('encryptedMessage', ciphertext);
         if (file) {
             formData.append('privateKeyFile', file);
         }
@@ -67,10 +131,12 @@ document.addEventListener('DOMContentLoaded', function () {
         })
             .then(response => response.json())
             .then(data => {
-                encryptResponse.value = data.content || '응답에 content가 없습니다.';
+                decryptionResponseOutput.value = data.data.content || '응답 메시지가 없습니다.';
             })
             .catch(error => {
-                encryptResponse.value = '전송 실패: ' + error; // 오류 메시지 표시
+                decryptionResponseOutput.value = '전송 실패: ' + error; // 오류 메시지 표시
             });
     });
+
+    encryptionTab.click();
 });

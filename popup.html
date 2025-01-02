@@ -1,79 +1,162 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Chrome Extension</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            width: 300px;
-            height: 300px;
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>암호화 서비스</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
-          }
-          .tabs {
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 400px;
+        }
+
+        h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .tabs {
             display: flex;
             cursor: pointer;
-            border-bottom: 2px solid #ddd;
-          }
-          .tab {
-            padding: 10px;
+            border-bottom: 3px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 20px;
             flex: 1;
             text-align: center;
             background-color: #f1f1f1;
             border: 1px solid #ddd;
-          }
-          .tab.active {
+            border-radius: 5px 5px 0 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .tab:hover {
             background-color: #ddd;
+        }
+
+        .tab.active {
+            background-color: #5c6bc0;
+            color: #fff;
             font-weight: bold;
-          }
-          .tab-content {
+        }
+
+        .tab-content {
             display: none;
             padding: 20px;
-            background-color: #f9f9f9;
-            height: 150px;
-          }
-          .tab-content.active {
-            display: block;
-          }
-          textarea {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 100%;
-            height: 60px;
+            max-width: 320px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            resize: none;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        input[type="file"] {
+            width: 100%;  /* 부모 요소의 너비에 맞추기 */
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+            font-size: 14px;
+            box-sizing: border-box;  /* padding 포함 */
+        }
+
+        button {
+            background-color: #5c6bc0;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3f51b5;
+        }
+
+        #encryptionResponseOutput,
+        #decryptionResponseOutput {
+            width: 100%;
+            height: 80px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #fafafa;
+            font-size: 14px;
+            color: #333;
+            box-sizing: border-box;
             resize: none;
             margin-bottom: 10px;
-          }
-          #fileInput, #encryptFileInput {
-            margin-bottom: 10px;
-          }
-        </style>
-      </head>
-  <body>
+            font-family: 'Courier New', monospace;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 380px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
     <h3>암호화 서비스</h3>
-    
-    <!-- Tabs -->
+
     <div class="tabs">
-      <div class="tab active" id="writeTab">암호화</div>
-      <div class="tab" id="encryptTab">복호화</div>
+        <div class="tab active" id="encryptionTab">암호화</div>
+        <div class="tab" id="decryptionTab">복호화</div>
     </div>
 
-<!-- Write Tab Content -->
-<div class="tab-content active" id="writeTabContent">
-    <textarea id="content" placeholder="본문을 입력하세요"></textarea>
-    <input type="file" id="fileInput" />
-    <button id="sendButton">전송</button>
-    <textarea id="writeResponse" placeholder="응답이 여기에 표시됩니다" readonly></textarea>
-  </div>
-  
-  <!-- Encrypt Tab Content -->
-  <div class="tab-content" id="encryptTabContent">
-    <textarea id="encryptedContent" placeholder="암호화된 본문을 입력하세요"></textarea>
-    <input type="file" id="encryptFileInput" />
-    <button id="encryptButton">전송</button>
-    <textarea id="encryptResponse" placeholder="응답이 여기에 표시됩니다" readonly></textarea>
-  </div>
-  
+    <!-- 암호화 탭 : 평문을 암호화 한다. -->
+    <div class="tab-content active" id="encryptionTabContent">
+        <textarea id="plaintextInput" placeholder="본문을 입력하세요"></textarea>
+        <input type="file" id="publicKeyFileInput" />
+        <button id="encryptSubmitButton">전송</button>
+        <textarea id="encryptionResponseOutput" placeholder="응답이 여기에 표시됩니다" readonly></textarea>
+    </div>
 
-    <script src="popup.js"></script>
-  </body>
+    <!-- 복호화 탭 : 암호화된 문장을 복호화 한다. -->
+    <div class="tab-content" id="decryptionTabContent">
+        <textarea id="ciphertextInput" placeholder="암호화된 본문을 입력하세요"></textarea>
+        <input type="file" id="privateKeyFileInput" />
+        <button id="decryptSubmitButton">전송</button>
+        <textarea id="decryptionResponseOutput" placeholder="응답이 여기에 표시됩니다" readonly></textarea>
+    </div>
+</div>
+
+<script src="popup.js"></script>
+</body>
 </html>
