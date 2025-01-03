@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
         encryptionTabContent.classList.add('active');
         decryptionTabContent.classList.remove('active');
 
-        chrome.storage.local.get('publicKeyFile', (result) => {
+        chrome.storage.session.get('publicKeyFile', (result) => {
             if (result.publicKeyFile) {
                 // Base64 데이터를 Blob으로 변환
                 const byteCharacters = atob(result.publicKeyFile);
@@ -68,18 +68,15 @@ document.addEventListener('DOMContentLoaded', function () {
         decryptionTabContent.classList.add('active');
         encryptionTabContent.classList.remove('active');
 
-        chrome.storage.local.get('privateKeyFile', (result) => {
+        chrome.storage.session.get('privateKeyFile', (result) => {
             if (result.privateKeyFile) {
-                // Base64 데이터를 Blob으로 변환
                 const byteCharacters = atob(result.privateKeyFile);
                 const byteNumbers = new Array(byteCharacters.length).fill().map((_, i) => byteCharacters.charCodeAt(i));
                 const byteArray = new Uint8Array(byteNumbers);
                 const blob = new Blob([byteArray]);
 
-                // Blob을 파일로 설정
                 const file = new File([blob], "privateKey-file", { type: "application/octet-stream" });
 
-                // File 객체를 privateKeyFileInput에 설정
                 const dataTransfer = new DataTransfer();
                 dataTransfer.items.add(file);
                 privateKeyFileInput.files = dataTransfer.files;
@@ -93,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const reader = new FileReader();
             reader.onload = function (event) {
                 const base64File = event.target.result.split(',')[1]; // Base64 데이터 추출
-                chrome.storage.local.set({ 'privateKeyFile': base64File }, () => {
+                chrome.storage.session.set({ 'privateKeyFile': base64File }, () => {
                     console.log('파일 저장 완료');
                 });
             };
@@ -107,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const reader = new FileReader();
             reader.onload = function (event) {
                 const base64File = event.target.result.split(',')[1]; // Base64 데이터 추출
-                chrome.storage.local.set({ 'publicKeyFile': base64File }, () => {
+                chrome.storage.session.set({ 'publicKeyFile': base64File }, () => {
                     console.log('파일 저장 완료');
                 });
             };
