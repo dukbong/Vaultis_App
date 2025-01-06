@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.append('publicKeyFile', file);
         }
 
-        fetch('http://localhost:8889/encrypt', {
+        fetch('http://localhost:8000/crypto-service/encryption', {
             method: 'POST',
             body: formData
         })
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.append('privateKeyFile', file);
         }
 
-        fetch('http://localhost:8889/decryption', {
+        fetch('http://localhost:8000/crypto-service/decryption', {
             method: 'POST',
             body: formData
         })
